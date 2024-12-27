@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Content Detection Service</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet">
+    <style>
+        @keyframes gradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+            100% { transform: translateY(0px); }
+        }
+        .gradient-text {
+            background: linear-gradient(45deg, #FF6B6B, #4ECDC4, #45B7D1, #96C93D);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            background-size: 300% 300%;
+            animation: gradient 15s ease infinite;
+        }
+        .floating {
+            animation: float 6s ease-in-out infinite;
+        }
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-violet-900 animate-[gradient_15s_ease_infinite] bg-[length:400%_400%]">
+    <div class="min-h-screen flex items-center justify-center p-4 md:p-8">
+        <main class="max-w-4xl w-full bg-gray-900 bg-opacity-50 backdrop-blur-xl rounded-3xl shadow-2xl p-6 md:p-12 space-y-8 border border-gray-700">
+            <!-- Hero Section -->
+            <div class="text-center space-y-6 animate__animated animate__fadeIn">
+                <h1 class="text-4xl md:text-6xl font-bold gradient-text mb-8">
+                    Verify Your Content's Authenticity
+                </h1>
+                <p class="text-xl md:text-2xl text-gray-300 leading-relaxed mb-4">
+                    Get comprehensive AI detection and plagiarism reports using Turnitin's advanced detection system
+                </p>
+                
+                <!-- Price Badge -->
+                <div class="inline-block animate__animated animate__fadeIn animate__delay-1s">
+                    <div class="bg-gradient-to-r from-green-500 to-blue-500 p-1 rounded-2xl">
+                        <div class="bg-gray-900 bg-opacity-90 px-6 py-3 rounded-xl">
+                            <span class="text-xl text-gray-300">Just</span>
+                            <span class="text-4xl font-bold text-white mx-2">30 AED</span>
+                            <span class="text-xl text-gray-300">per check</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Stats Section -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12">
+                    <div class="card-hover bg-gray-800 bg-opacity-50 rounded-xl p-6 border border-gray-700">
+                        <div class="text-4xl font-bold text-blue-400 mb-2">99.9%</div>
+                        <div class="text-gray-300">Detection Accuracy</div>
+                    </div>
+                    <div class="card-hover bg-gray-800 bg-opacity-50 rounded-xl p-6 border border-gray-700">
+                        <div class="text-4xl font-bold text-green-400 mb-2">5 Min</div>
+                        <div class="text-gray-300">Fast Results</div>
+                    </div>
+                    <div class="card-hover bg-gray-800 bg-opacity-50 rounded-xl p-6 border border-gray-700">
+                        <div class="text-4xl font-bold text-purple-400 mb-2">100%</div>
+                        <div class="text-gray-300">Satisfaction Rate</div>
+                    </div>
+                </div>
+
+                <!-- Sample Reports Section -->
+                <div class="mt-16 grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="card-hover bg-gray-800 bg-opacity-50 rounded-2xl p-6 border border-gray-700">
+                        <h3 class="text-xl font-bold text-white mb-4">AI Detection Report</h3>
+                        <img src="/api/placeholder/400/300" alt="AI Detection Report Sample" class="rounded-lg w-full mb-4"/>
+                        <p class="text-gray-300">Detailed AI probability analysis with Turnitin's advanced detection system</p>
+                    </div>
+                    <div class="card-hover bg-gray-800 bg-opacity-50 rounded-2xl p-6 border border-gray-700">
+                        <h3 class="text-xl font-bold text-white mb-4">Plagiarism Report</h3>
+                        <img src="/api/placeholder/400/300" alt="Plagiarism Report Sample" class="rounded-lg w-full mb-4"/>
+                        <p class="text-gray-300">Comprehensive similarity check against billions of documents</p>
+                    </div>
+                </div>
+
+                <!-- Features Section -->
+                <div class="mt-16 floating">
+                    <div class="bg-gray-800 bg-opacity-50 rounded-2xl p-8 border border-gray-700">
+                        <h2 class="text-2xl md:text-3xl font-bold text-white mb-6">Why Choose Our Service?</h2>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-left">
+                            <div class="flex items-start space-x-4">
+                                <div class="flex-shrink-0 w-12 h-12 rounded-full bg-blue-500 flex items-center justify-center">
+                                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h3 class="text-xl font-semibold text-white">Turnitin Technology</h3>
+                                    <p class="text-gray-300 mt-2">Using the most trusted name in content verification</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start space-x-4">
+                                <div class="flex-shrink-0 w-12 h-12 rounded-full bg-green-500 flex items-center justify-center">
+                                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h3 class="text-xl font-semibold text-white">Dual Analysis</h3>
+                                    <p class="text-gray-300 mt-2">AI detection + Plagiarism check in one report</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CTA Section -->
+                <div class="mt-16 space-y-6">
+                    <h3 class="text-2xl md:text-3xl font-bold text-white">Ready to Verify Your Content?</h3>
+                    <p class="text-gray-300">Get your comprehensive report within minutes for just 30 AED</p>
+                    <div class="flex flex-col sm:flex-row gap-6 justify-center mt-8">
+                        <a href="https://wa.me/your_number" target="_blank" 
+                           class="group relative inline-flex items-center justify-center px-8 py-4 bg-gradient-to-r from-green-500 to-green-600 text-white font-medium rounded-xl overflow-hidden transition-all duration-300 hover:scale-105 hover:shadow-lg">
+                            <div class="absolute inset-0 w-full h-full bg-gradient-to-r from-green-600 to-green-700 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                            <svg class="w-6 h-6 mr-3 relative z-10" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"></path>
+                            </svg>
+                            <span class="relative z-10">Check via WhatsApp</span>
+                        </a>
+                        
+                        <a href="https://t.me/your_username" target="_blank" 
+                           class="group relative inline-flex items-center justify-center px-8 py-4 bg-gradient-to-r from-blue-500 to-blue-600 text-white font-medium rounded-xl overflow-hidden transition-all duration-300 hover:scale-105 hover:shadow-lg">
+                            <div class="absolute inset-0 w-full h-full bg-gradient-to-r from-blue-600 to-blue-700 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                            <svg class="w-6 h-6 mr-3 relative z-10" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M19.2,4.4L2.9,10.7c-1.1,0.4-1.1,1.1-0.2,1.3l4.1,1.3l1.6,4.8c0.2,0.5,0.1,0.7,0.6,0.7c0.4,0,0.6-0.2,0.8-0.4 c0.1-0.1,1-1,2-2l4.2,3.1c0.8,0.4,1.3,0.2,1.5-0.7l2.8-13.1C20.6,4.6,19.9,4,19.2,4.4z M17.1,7.4l-7.8,7.1L9,17.8L7.4,13l9.2-5.8 C17,6.9,17.4,7.1,17.1,7.4z"></path>
+                            </svg>
+                            <span class="relative z-10">Verify via Telegram</span>
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- Trust Badges -->
+                <div class="mt-16 grid grid-cols-2 md:grid-cols-4 gap-6">
+                    <div class="bg-gray-800 bg-opacity-50 p-4 rounded-xl border border-gray-700">
+                        <div class="text-2xl font-bold text-gray-300 mb-1">Accurate</div>
+                        <div class="text-gray-400 text-sm">Turnitin Check</div>
+                    </div>
+                    <div class="bg-gray-800 bg-opacity-50 p-4 rounded-xl border border-gray-700">
+                        <div class="text-2xl font-bold text-gray-300 mb-1">24/7</div>
+                        <div class="text-gray-400 text-sm">Instant Reports</div>
+                    </div>
+                    <div class="bg-gray-800 bg-opacity-50 
