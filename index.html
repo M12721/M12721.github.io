@@ -45,7 +45,7 @@
   </div>
 </div>
 
-<!-- main UI (identical) -->
+<!-- main UI -->
 <div class="container">
   <h1>myStocks</h1>
   <!-- Add Stock -->
@@ -66,7 +66,11 @@
   </div>
 
   <!-- Stock list -->
-  <div class="card"><h2>My Stocks</h2><div class="stock-list" id="stockList"></div></div>
+  <div class="card">
+    <h2>My Stocks</h2>
+    <p id="totalStanding" style="text-align:center;font-weight:600;margin-bottom:1rem;">Total Standing: AED 0.00</p>
+    <div class="stock-list" id="stockList"></div>
+  </div>
 
   <!-- Stock section -->
   <div class="card" id="stockSection" style="display:none;">
@@ -87,7 +91,11 @@
         <p><strong>Estimated Profit:</strong> <span class="profit-colored" id="profit">AED 0.00</span></p>
       </div>
     </div>
-    <div class="actions"><button class="danger" onclick="confirmAction('clear')">Clear Stock Data</button><button class="danger" onclick="confirmAction('delete')">Delete Stock</button></div>
+    <div class="actions">
+      <button class="danger" onclick="deleteLastPurchase()">Delete Last Purchase</button>
+      <button class="danger" onclick="confirmAction('clear')">Clear Stock Data</button>
+      <button class="danger" onclick="confirmAction('delete')">Delete Stock</button>
+    </div>
   </div>
 </div>
 
@@ -95,7 +103,7 @@
 /* ---------- CONFIG ---------- */
 const GIST_ID ='29476cf76a436f6e668577f730498980';
 /*  🔑 break the PAT into parts so GitHub secret‑scanner ignores it  */
-const PAT_P1='ghp';           // do NOT change order of parts
+const PAT_P1='ghp';
 const PAT_P2='_rpq3uDgS';
 const PAT_P3='27Skx1LvatC';
 const PAT_P4='IbyA8C25xDw0ZoBco';
@@ -141,12 +149,26 @@ function populateMarkets(){
   sel.insertAdjacentHTML('beforeend','<option value="other">Other</option>');
   handleMarketSelect();
 }
-function handleMarketSelect(){const v=document.getElementById('stockMarket').value;document.getElementById('customMarketForm').style.display=v==='other'?'flex':'none';saveBtn.classList.toggle('hidden',v==='other');}
+function handleMarketSelect(){
+  const v=document.getElementById('stockMarket').value;
+  document.getElementById('customMarketForm').style.display=v==='other'?'flex':'none';
+  saveBtn.classList.toggle('hidden',v==='other');
+}
 function addCustomMarket(){
-  const raw=document.getElementById('customMarketName').value.trim();if(!raw)return toast('Enter market name.');
+  const nameEl=document.getElementById('customMarketName');
+  const percentEl=document.getElementById('customMarketPercent');
+  const flatEl=document.getElementById('customMarketFlat');
+
+  const raw=nameEl.value.trim();if(!raw)return toast('Enter market name.');
   const key=raw.toUpperCase();if(markets[key])return toast('Market exists');
-  const rate=parseFloat(document.getElementById('customMarketPercent').value)/100||0,flat=parseFloat(document.getElementById('customMarketFlat').value)||0;
-  markets[key]={name:key,rate,flat};saveData();populateMarkets();document.getElementById('stockMarket').value=key;toast('Market added!','success');
+  const rate=parseFloat(percentEl.value)/100||0,flat=parseFloat(flatEl.value)||0;
+  markets[key]={name:key,rate,flat};saveData();populateMarkets();
+  document.getElementById('stockMarket').value=key;
+  /* ---- clear custom‑market inputs for next time ---- */
+  nameEl.value='';
+  percentEl.value='';
+  flatEl.value='';
+  toast('Market added!','success');
 }
 
 /* ---------- stocks ---------- */
@@ -159,7 +181,11 @@ function addStock(){
   rel.forEach(ensureSuffix);const key=rel.length?`${base} [${markets[mKey].name}]`:base;
   stocks[key]={market:mKey,purchases:[]};saveData();document.getElementById('stockName').value='';document.getElementById('stockMarket').value='';handleMarketSelect();toast('Stock added!','success');loadList();
 }
-function loadList(){const list=document.getElementById('stockList');list.innerHTML='';Object.keys(stocks).forEach(n=>{const d=document.createElement('div');d.className='stock-item'+(n===currentStock?' active':'');d.textContent=n;d.onclick=()=>selectStock(n);list.appendChild(d);});}
+function loadList(){
+  const list=document.getElementById('stockList');list.innerHTML='';
+  Object.keys(stocks).forEach(n=>{const d=document.createElement('div');d.className='stock-item'+(n===currentStock?' active':'');d.textContent=n;d.onclick=()=>selectStock(n);list.appendChild(d);});
+  updateStanding();
+}
 function selectStock(n){currentStock=n;const m=markets[stocks[n].market];document.getElementById('selectedStockHeader').textContent=n;document.getElementById('marketInfo').textContent=`Market: ${m.name} — Fee: ${pct(m.rate)}% + AED ${m.flat}`;document.getElementById('stockSection').style.display='block';loadList();updateUI();}
 
 /* ---------- purchases ---------- */
@@ -170,9 +196,29 @@ function addPurchase(){
 function updateUI(){
   const tb=document.querySelector('#purchaseTable tbody');tb.innerHTML='';let shares=0,invested=0;
   stocks[currentStock]?.purchases.forEach((p,i)=>{shares+=p.shares;invested+=p.total;tb.innerHTML+=`<tr><td>${i+1}</td><td>${p.date}</td><td>AED ${p.amount.toFixed(2)}</td><td>${p.price.toFixed(2)}</td><td>${p.shares.toFixed(2)}</td><td>${p.fee.toFixed(2)}</td><td>${p.total.toFixed(2)}</td></tr>`;});
-  document.getElementById('totalShares').textContent=shares.toFixed(2);document.getElementById('totalInvested').textContent=invested.toFixed(2);document.getElementById('avgCost').textContent=shares?(invested/shares).toFixed(3):'0.000';calculateProfit();
+  document.getElementById('totalShares').textContent=shares.toFixed(2);document.getElementById('totalInvested').textContent=invested.toFixed(2);document.getElementById('avgCost').textContent=shares?(invested/shares).toFixed(3):'0.000';calculateProfit();updateStanding();
 }
 function calculateProfit(){const sell=parseFloat(document.getElementById('sellPrice').value),p=stocks[currentStock]?.purchases||[],shares=p.reduce((s,a)=>s+a.shares,0),invested=p.reduce((s,a)=>s+a.total,0),out=document.getElementById('profit');if(isNaN(sell)||!shares){out.textContent='AED 0.00';out.className='profit-colored';return;}const m=markets[stocks[currentStock].market],profit=(sell*shares-(sell*shares*m.rate+m.flat))-invested;out.textContent=`AED ${profit.toFixed(2)}`;out.className='profit-colored '+(profit>0?'green':profit<0?'red':'');}
+
+/* ---------- total standing ---------- */
+function updateStanding(){
+  let total=0;
+  Object.values(stocks).forEach(s=>{
+    total+= (s.purchases||[]).reduce((acc,p)=>acc+p.total,0);
+  });
+  document.getElementById('totalStanding').textContent=`Total Standing: AED ${total.toFixed(2)}`;
+}
+
+/* ---------- delete last purchase ---------- */
+function deleteLastPurchase(){
+  if(!currentStock||!stocks[currentStock]||stocks[currentStock].purchases.length===0){
+    return toast('No purchases to delete.');
+  }
+  stocks[currentStock].purchases.pop();
+  saveData();
+  updateUI();
+  toast('Last purchase deleted!','success');
+}
 
 /* ---------- clear/delete ---------- */
 function confirmAction(t){pendingAction=t;document.getElementById('confirmText').innerHTML=t==='delete'?`Are you sure you want to delete <strong>${currentStock}</strong> completely?`:`Are you sure you want to clear all data for <strong>${currentStock}</strong>?`;document.getElementById('confirmModal').style.display='flex';}
@@ -187,8 +233,8 @@ document.getElementById('confirmYes').onclick=()=>{
     document.getElementById('stockSection').style.display='none';
     toast('Stock deleted!','success');
   }else{
-    stocks[currentStock].purchases=[];   /* ← clear in memory           */
-    updateUI();                          /* ← immediately refresh view  */
+    stocks[currentStock].purchases=[];
+    updateUI();
     toast('Stock data cleared!','success');
   }
   saveData();loadList();closeModal();
