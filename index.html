@@ -1,129 +1,197 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI & Plagiarism Checker</title>
-    <link rel="icon" href="fav.png" type="image/x-icon"> <!-- Adjust the path -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet">
-    <style>
-        @keyframes gradient {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-        @keyframes float {
-            0% { transform: translateY(0px); }
-            50% { transform: translateY(-20px); }
-            100% { transform: translateY(0px); }
-        }
-        .gradient-text {
-            background: linear-gradient(45deg, #FF6B6B, #4ECDC4, #45B7D1, #96C93D);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            background-size: 300% 300%;
-            animation: gradient 15s ease infinite;
-        }
-        .floating {
-            animation: float 6s ease-in-out infinite;
-        }
-        .card-hover {
-            transition: all 0.3s ease;
-        }
-        .card-hover:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
-        }
-    </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Stock Tracker</title>
+
+<!--  Pure‑front‑end.  Data lives in a private GitHub Gist (myStocks.json). -->
+
+<style>
+  /* ───── styles (unchanged) ───── */
+  :root{--primary:#0a84ff;--primary-dark:#006fe0;--success:#28a745;--success-dark:#218838;--danger:#ff3b30;--danger-dark:#d12c21;--bg:#f5f7fa;--text:#1d1d1f;--card:#ffffff;--border:#e0e0e0;--radius:12px;--shadow:rgba(0,0,0,.06);--font:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",sans-serif}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:var(--font);background:var(--bg);color:var(--text)}
+  input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+  .container{max-width:1000px;margin:2rem auto;padding:1rem}
+  h1,h2{text-align:center;font-weight:600;margin-bottom:1rem}
+  .card{background:var(--card);border-radius:var(--radius);padding:1.5rem;box-shadow:0 4px 12px var(--shadow);margin-bottom:2rem}
+  input,select{padding:10px;font-size:1rem;border:1px solid var(--border);border-radius:8px;outline:none;background:#fff;width:100%}
+  button{padding:10px 24px;font-size:1rem;border:none;border-radius:8px;cursor:pointer;background:var(--primary);color:#fff;transition:background .2s;width:auto}
+  button:hover{background:var(--primary-dark)}.danger{background:var(--danger)}.danger:hover{background:var(--danger-dark)}.success{background:var(--success)}.success:hover{background:var(--success-dark)}.hidden{display:none !important}
+  @keyframes shake{0%,100%{transform:translateX(0)}25%,75%{transform:translateX(-4px)}50%{transform:translateX(4px)}}.shake{animation:shake .3s}
+  .grid{display:flex;flex-wrap:wrap;gap:1rem;margin-bottom:1rem}.grow{flex:1 1 260px;max-width:260px}.inline-btn{flex:0 0 150px}.input-wrapper{position:relative;flex:1 1 260px;max-width:260px}.input-wrapper input{padding-left:1rem;padding-right:2.8rem}.input-wrapper span{position:absolute;top:50%;transform:translateY(-50%);font-weight:600;color:#555;font-size:.9rem;pointer-events:none}.suffix{right:.6rem}.fee-plus{font-weight:700;font-size:1.2rem;margin:0 .25rem;align-self:center}
+  .stock-list{display:flex;flex-wrap:wrap;gap:.5rem}.stock-item{padding:10px 16px;border:1px solid var(--border);border-radius:8px;background:#f1f3f5;cursor:pointer;transition:background .2s}.stock-item:hover{background:var(--primary);color:#fff}.stock-item.active{background:var(--primary)!important;color:#fff}
+  .market-info{margin:.5rem 0 1rem;font-size:.9rem;font-weight:500}.table-wrap{width:100%;overflow-x:auto}table{width:100%;min-width:600px;border-collapse:collapse}th,td{padding:12px;border-bottom:1px solid var(--border);text-align:center;font-size:.95rem;white-space:nowrap}
+  .summary{background:#f0f8ff;padding:1rem;border-radius:var(--radius);margin-top:1.5rem;display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1rem}.summary p{margin:0}.profit-row{display:grid;gap:1rem;grid-template-columns:minmax(200px,1fr) auto;align-items:center}
+  .profit-row p{margin:0;white-space:nowrap}.profit-colored{font-weight:700}.green{color:var(--success)}.red{color:var(--danger)}
+  .actions{margin-top:1.5rem;display:flex;justify-content:center;gap:1rem;flex-wrap:wrap}
+  .toast{position:fixed;top:20px;right:20px;background:var(--danger);color:#fff;padding:12px 20px;border-radius:6px;font-size:.95rem;box-shadow:0 2px 10px rgba(0,0,0,.2);opacity:0;transform:translateY(-10px);transition:all .3s;z-index:1000}.toast.success{background:var(--success)}.toast.show{opacity:1;transform:translateY(0)}
+  .modal{position:fixed;inset:0;background:rgba(0,0,0,.4);display:none;align-items:center;justify-content:center;z-index:9999}.modal-content{background:#fff;padding:2rem;border-radius:10px;text-align:center;max-width:350px;width:90%}.modal-buttons{display:flex;gap:1rem;margin-top:1rem}.modal-buttons button{flex:1}
+  @media(max-width:767px){.grid{flex-direction:column}.grow,.input-wrapper,.inline-btn{flex:1 1 100%;max-width:100%}button{width:100%}th,td{padding:8px;font-size:.85rem}.profit-row{grid-template-columns:1fr}}
+</style>
 </head>
-<body class="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-violet-900 animate-[gradient_15s_ease_infinite] bg-[length:400%_400%]">
-    <div class="min-h-screen flex items-center justify-center p-4 md:p-8">
-        <main class="max-w-4xl w-full bg-gray-900 bg-opacity-50 backdrop-blur-xl rounded-3xl shadow-2xl p-6 md:p-12 space-y-8 border border-gray-700">
-            <!-- Hero Section -->
-            <div class="text-center space-y-6 animate__animated animate__fadeIn">
-                <h1 class="text-4xl md:text-6xl font-bold gradient-text mb-8">
-                    Verify Your Content's Authenticity
-                </h1>
-                <p class="text-xl md:text-2xl text-gray-300 leading-relaxed mb-4">
-                    Get comprehensive AI detection and plagiarism reports using Turnitin's advanced detection system
-                </p>
-                
-                <!-- Guarantees Section -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
-                    <div class="card-hover bg-gray-800 bg-opacity-50 rounded-xl p-6 border border-gray-700">
-                        <div class="flex items-center justify-center mb-4">
-                            <svg class="w-12 h-12 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                            </svg>
-                        </div>
-                        <h3 class="text-xl font-bold text-white mb-2">100% Money-Back Guarantee</h3>
-                        <p class="text-gray-300">Not satisfied with our service? Get a 50% refund, no questions asked.</p>
-                    </div>
-                    <div class="card-hover bg-gray-800 bg-opacity-50 rounded-xl p-6 border border-gray-700">
-                        <div class="flex items-center justify-center mb-4">
-                            <svg class="w-12 h-12 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
-                            </svg>
-                        </div>
-                        <h3 class="text-xl font-bold text-white mb-2">Confidentiality Guaranteed</h3>
-                        <p class="text-gray-300">Your content is automatically deleted after analysis. 100% private.</p>
-                    </div>
-                </div>
+<body>
+<div class="toast" id="toast"></div>
 
+<!-- modal -->
+<div class="modal" id="confirmModal">
+  <div class="modal-content">
+    <h3 id="confirmText"></h3>
+    <div class="modal-buttons">
+      <button class="success" id="confirmYes">Yes</button>
+      <button class="danger" onclick="closeModal()">No</button>
+    </div>
+  </div>
+</div>
 
-                                <!-- Report Samples -->
-                <div class="mt-16 grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div class="card-hover bg-gray-800 bg-opacity-50 rounded-2xl p-6 border border-gray-700">
-                        <h3 class="text-xl font-bold text-white mb-4">AI Detection Report</h3>
-                        <img src="ai.png" alt="AI Detection Report Sample" class="rounded-lg w-full mb-4"/>
-                        <p class="text-gray-300">Comprehensive AI analysis with detailed probability breakdown</p>
-                    </div>
-                    <div class="card-hover bg-gray-800 bg-opacity-50 rounded-2xl p-6 border border-gray-700">
-                        <h3 class="text-xl font-bold text-white mb-4">Plagiarism Report</h3>
-                        <img src="plag.png" alt="Plagiarism Report Sample" class="rounded-lg w-full mb-4"/>
-                        <p class="text-gray-300">In-depth similarity check against billions of sources</p>
-                    </div>
-                </div>
+<!-- main UI (identical) -->
+<div class="container">
+  <h1>📈 Stock Tracker</h1>
+  <!-- Add Stock -->
+  <div class="card">
+    <h2>Add New Stock</h2>
+    <div class="grid">
+      <input class="grow" type="text" id="stockName" placeholder="Stock Name"/>
+      <select class="grow" id="stockMarket" onchange="handleMarketSelect()"><option value="">-- Select Market --</option></select>
+      <button id="saveStockBtn" class="inline-btn" onclick="addStock()">Save Stock</button>
+    </div>
+    <div class="market-config grid" id="customMarketForm" style="display:none;">
+      <input class="grow" type="text" id="customMarketName" placeholder="Custom Market Name"/>
+      <div class="input-wrapper"><input type="number" id="customMarketPercent" placeholder="Percent Fee" step="0.0001"/><span class="suffix">%</span></div>
+      <span class="fee-plus">+</span>
+      <div class="input-wrapper"><input type="number" id="customMarketFlat" placeholder="Flat Fee" step="0.01"/><span class="suffix">AED</span></div>
+      <button class="inline-btn" onclick="addCustomMarket()">Add Market</button>
+    </div>
+  </div>
 
-                                <!-- Trust Indicators -->
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-12">
-                    <div class="bg-gray-800 bg-opacity-50 rounded-xl p-4 border border-gray-700">
-                        <div class="text-3xl font-bold text-blue-400 mb-2">5 Minutes</div>
-                        <div class="text-gray-300">Guaranteed Delivery Time</div>
-                    </div>
-                    <div class="bg-gray-800 bg-opacity-50 rounded-xl p-4 border border-gray-700">
-                        <div class="text-3xl font-bold text-green-400 mb-2">24/7</div>
-                        <div class="text-gray-300">Instant Support</div>
-                    </div>
-                    <div class="bg-gray-800 bg-opacity-50 rounded-xl p-4 border border-gray-700">
-                        <div class="text-3xl font-bold text-purple-400 mb-2">100%</div>
-                        <div class="text-gray-300">Satisfaction Rate</div>
-                    </div>
-                </div>
+  <!-- Stock list -->
+  <div class="card"><h2>My Stocks</h2><div class="stock-list" id="stockList"></div></div>
 
-                <!-- CTA Section -->
-                <div class="mt-16 space-y-6">
-                    <h3 class="text-2xl md:text-3xl font-bold text-white">Ready to Verify Your Content?</h3>
-                    <p class="text-gray-300">Get your comprehensive report within minutes for just 30 AED</p>
-                    <div class="flex flex-col sm:flex-row gap-6 justify-center mt-8">
-                        <a href="https://wa.me/your_number" target="_blank" 
-                           class="group relative inline-flex items-center justify-center px-8 py-4 bg-gradient-to-r from-green-500 to-green-600 text-white font-medium rounded-xl overflow-hidden transition-all duration-300 hover:scale-105 hover:shadow-lg">
-                            <div class="absolute inset-0 w-full h-full bg-gradient-to-r from-green-600 to-green-700 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                            <svg class="w-6 h-6 mr-3 relative z-10" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"></path>
-                            </svg>
-                            <span class="relative z-10">WhatsApp</span>
-                        </a>
-                        
-                        <a href="https://t.me/your_username" target="_blank" 
-                           class="group relative inline-flex items-center justify-center px-8 py-4 bg-gradient-to-r from-blue-500 to-blue-600 text-white font-medium rounded-xl overflow-hidden transition-all duration-300 hover:scale-105 hover:shadow-lg">
-                            <div class="absolute inset-0 w-full h-full bg-gradient-to-r from-blue-600 to-blue-700 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                            <svg class="w-6 h-6 mr-3 relative z-10" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M19.2,4.4L2.9,10.7c-1.1,0.4-1.1,1.1-0.2,1.3l4.1,1.3l1.6,4.8c0.2,0.5,0.1,0.7,0.6,0.7c0.4,0,0.6-0.2,0.8-0.4 c0.1-0.1,1-1,2-2l4.2,3.1c0.8,0.4,1.3,0.2,1.5-0.7l2.8-13.1C20.6,4.6,19.9,4,19.2,4.4z M17.1,7.4l-7.8,7.1L9,17.8L7.4,13l9.2-5.8 C17,6.9,17.4,7.1,17.1,7.4z"></path>
-                            </svg>
-                            <span class="relative z-10">Telegram</span>
-                        </a>
-                    </div>
-                </div>
+  <!-- Stock section -->
+  <div class="card" id="stockSection" style="display:none;">
+    <h2 id="selectedStockHeader"></h2>
+    <div class="market-info" id="marketInfo"></div>
+    <div class="grid" id="tradeGrid">
+      <div class="input-wrapper"><input type="number" id="amount" placeholder="Amount" step="0.01"/><span class="suffix">AED</span></div>
+      <div class="input-wrapper"><input type="number" id="price" placeholder="Price per Share" step="0.01"/><span class="suffix">AED</span></div>
+      <button class="inline-btn" onclick="addPurchase()">Add Purchase</button>
+    </div>
+    <div class="table-wrap"><table id="purchaseTable"><thead><tr><th>#</th><th>Date</th><th>Amount</th><th>Price</th><th>Shares</th><th>Fee</th><th>Total</th></tr></thead><tbody></tbody></table></div>
+    <div class="summary">
+      <p><strong>Total Shares:</strong> <span id="totalShares">0.00</span></p>
+      <p><strong>Total Invested:</strong> AED <span id="totalInvested">0.00</span></p>
+      <p><strong>Average Cost/Share:</strong> AED <span id="avgCost">0.000</span></p>
+      <div class="profit-row">
+        <div class="input-wrapper"><input type="number" id="sellPrice" placeholder="Sell Price" step="0.01" oninput="calculateProfit()"><span class="suffix">AED</span></div>
+        <p><strong>Estimated Profit:</strong> <span class="profit-colored" id="profit">AED 0.00</span></p>
+      </div>
+    </div>
+    <div class="actions"><button class="danger" onclick="confirmAction('clear')">Clear Stock Data</button><button class="danger" onclick="confirmAction('delete')">Delete Stock</button></div>
+  </div>
+</div>
+
+<script>
+/* ---------- CONFIG ---------- */
+const GIST_ID   ='29476cf76a436f6e668577f730498980';
+const GIST_PAT  ='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';
+const FILE_NAME ='myStocks.json';
+
+/* default markets */
+const defaultMarkets={DFM:{name:'DFM',rate:0.00275,flat:10.5},ADX:{name:'ADX',rate:0.0015,flat:0}};
+
+/* state */
+let markets=JSON.parse(JSON.stringify(defaultMarkets));
+let stocks={};
+let currentStock=null,pendingAction=null;
+
+/* ---------- storage (gist) ---------- */
+function loadData(){
+  fetch(`https://api.github.com/gists/${GIST_ID}`,{headers:{Authorization:`Bearer ${GIST_PAT}`}})
+    .then(r=>r.ok?r.json():Promise.reject())
+    .then(g=>applyData(JSON.parse(g.files[FILE_NAME]?.content||'{}')))
+    .catch(()=>applyData({}));
+}
+function saveData(){
+  fetch(`https://api.github.com/gists/${GIST_ID}`,{
+    method:'PATCH',
+    headers:{Authorization:`Bearer ${GIST_PAT}`,'Content-Type':'application/json'},
+    body:JSON.stringify({files:{[FILE_NAME]:{content:JSON.stringify({stocks,markets})}}})
+  });
+}
+
+/* ---------- utils ---------- */
+const normalizeTxt=t=>t.toLowerCase().replace(/\s+/g,'');
+const getBase=n=>n.split(' [')[0];
+const pct=r=>{const p=r*100;return p%1===0?p.toFixed(0):p.toFixed(3).replace(/\.?0+$/,'');};
+const toast=(m,t='danger')=>{const e=document.getElementById('toast');e.className=`toast show ${t}`;e.textContent=m;setTimeout(()=>e.className='toast',2000);}
+const now=()=>new Date().toLocaleDateString('en-GB')+' at '+new Date().toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
+const saveBtn=document.getElementById('saveStockBtn');
+
+/* ---------- market ui ---------- */
+function populateMarkets(){
+  const sel=document.getElementById('stockMarket');
+  sel.innerHTML='<option value="">-- Select Market --</option>';
+  Object.keys(markets).forEach(k=>{const o=document.createElement('option');o.value=k;o.textContent=markets[k].name;sel.appendChild(o);});
+  sel.insertAdjacentHTML('beforeend','<option value="other">Other</option>');
+  handleMarketSelect();
+}
+function handleMarketSelect(){const v=document.getElementById('stockMarket').value;document.getElementById('customMarketForm').style.display=v==='other'?'flex':'none';saveBtn.classList.toggle('hidden',v==='other');}
+function addCustomMarket(){
+  const raw=document.getElementById('customMarketName').value.trim();if(!raw)return toast('Enter market name.');
+  const key=raw.toUpperCase();if(markets[key])return toast('Market exists');
+  const rate=parseFloat(document.getElementById('customMarketPercent').value)/100||0,flat=parseFloat(document.getElementById('customMarketFlat').value)||0;
+  markets[key]={name:key,rate,flat};saveData();populateMarkets();document.getElementById('stockMarket').value=key;toast('Market added!','success');
+}
+
+/* ---------- stocks ---------- */
+function ensureSuffix(k){if(k.includes(' ['))return k;const nk=`${k} [${markets[stocks[k].market].name}]`;stocks[nk]=stocks[k];delete stocks[k];if(currentStock===k)currentStock=nk;return nk;}
+function removeSuffixIfSolo(norm){const rel=Object.keys(stocks).filter(x=>normalizeTxt(getBase(x))===norm);if(rel.length===1&&rel[0].includes(' [')){const old=rel[0];stocks[getBase(old)]=stocks[old];delete stocks[old];if(currentStock===old)currentStock=getBase(old);}}
+function addStock(){
+  const base=document.getElementById('stockName').value.trim(),mKey=document.getElementById('stockMarket').value;if(!base||!mKey)return toast('Stock name and market required.');
+  const norm=normalizeTxt(base),rel=Object.keys(stocks).filter(x=>normalizeTxt(getBase(x))===norm);
+  if(rel.some(x=>stocks[x].market===mKey))return toast('Stock already exists.');
+  rel.forEach(ensureSuffix);const key=rel.length?`${base} [${markets[mKey].name}]`:base;
+  stocks[key]={market:mKey,purchases:[]};saveData();document.getElementById('stockName').value='';document.getElementById('stockMarket').value='';handleMarketSelect();toast('Stock added!','success');loadList();
+}
+function loadList(){const list=document.getElementById('stockList');list.innerHTML='';Object.keys(stocks).forEach(n=>{const d=document.createElement('div');d.className='stock-item'+(n===currentStock?' active':'');d.textContent=n;d.onclick=()=>selectStock(n);list.appendChild(d);});}
+function selectStock(n){currentStock=n;const m=markets[stocks[n].market];document.getElementById('selectedStockHeader').textContent=n;document.getElementById('marketInfo').textContent=`Market: ${m.name} — Fee: ${pct(m.rate)}% + AED ${m.flat}`;document.getElementById('stockSection').style.display='block';loadList();updateUI();}
+
+/* ---------- purchases ---------- */
+function addPurchase(){
+  const amt=parseFloat(document.getElementById('amount').value),price=parseFloat(document.getElementById('price').value);if(!amt||!price)return toast('Amount and Price required.');
+  const m=markets[stocks[currentStock].market],fee=amt*m.rate+m.flat,total=amt+fee,shares=amt/price;stocks[currentStock].purchases.push({amount:amt,price,shares,fee,total,date:now()});saveData();['amount','price'].forEach(id=>document.getElementById(id).value='');updateUI();
+}
+function updateUI(){
+  const tb=document.querySelector('#purchaseTable tbody');tb.innerHTML='';let shares=0,invested=0;
+  stocks[currentStock]?.purchases.forEach((p,i)=>{shares+=p.shares;invested+=p.total;tb.innerHTML+=`<tr><td>${i+1}</td><td>${p.date}</td><td>AED ${p.amount.toFixed(2)}</td><td>${p.price.toFixed(2)}</td><td>${p.shares.toFixed(2)}</td><td>${p.fee.toFixed(2)}</td><td>${p.total.toFixed(2)}</td></tr>`;});
+  document.getElementById('totalShares').textContent=shares.toFixed(2);document.getElementById('totalInvested').textContent=invested.toFixed(2);document.getElementById('avgCost').textContent=shares?(invested/shares).toFixed(3):'0.000';calculateProfit();
+}
+function calculateProfit(){const sell=parseFloat(document.getElementById('sellPrice').value),p=stocks[currentStock]?.purchases||[],shares=p.reduce((s,a)=>s+a.shares,0),invested=p.reduce((s,a)=>s+a.total,0),out=document.getElementById('profit');if(isNaN(sell)||!shares){out.textContent='AED 0.00';out.className='profit-colored';return;}const m=markets[stocks[currentStock].market],profit=(sell*shares-(sell*shares*m.rate+m.flat))-invested;out.textContent=`AED ${profit.toFixed(2)}`;out.className='profit-colored '+(profit>0?'green':profit<0?'red':'');}
+
+/* ---------- clear/delete ---------- */
+function confirmAction(t){pendingAction=t;document.getElementById('confirmText').innerHTML=t==='delete'?`Are you sure you want to delete <strong>${currentStock}</strong> completely?`:`Are you sure you want to clear all data for <strong>${currentStock}</strong>?`;document.getElementById('confirmModal').style.display='flex';}
+function closeModal(){document.getElementById('confirmModal').style.display='none';pendingAction=null;}
+document.getElementById('confirmYes').onclick=()=>{
+  if(!currentStock)return;
+  const norm=normalizeTxt(getBase(currentStock));
+  if(pendingAction==='delete'){
+    delete stocks[currentStock];
+    removeSuffixIfSolo(norm);
+    currentStock=null;
+    document.getElementById('stockSection').style.display='none';
+    toast('Stock deleted!','success');
+  }else{
+    stocks[currentStock].purchases=[];   /* ← clear in memory           */
+    updateUI();                          /* ← immediately refresh view  */
+    toast('Stock data cleared!','success');
+  }
+  saveData();loadList();closeModal();
+};
+
+/* ---------- init ---------- */
+function applyData(d){markets=Object.keys(d.markets||{}).length?d.markets:JSON.parse(JSON.stringify(defaultMarkets));stocks=d.stocks||{};populateMarkets();loadList();}
+loadData();
+</script>
+</body>
+</html>
