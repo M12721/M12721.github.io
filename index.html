@@ -5,8 +5,15 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>Stocks Tracker</title>
 
-<!--  idb (IIFE build – exposes global `idb`)  -->
-<script src="https://cdn.jsdelivr.net/npm/idb@7/build/iife/index-min.js"></script>
+<!-- ▸ durable storage helper (idb) – two‑source fallback so it always loads -->
+<script src="https://cdn.jsdelivr.net/npm/idb@7.1.1/build/umd.js"></script>
+<script>
+if(!window.idb){                       // primary CDN blocked?  load backup.
+  const s=document.createElement('script');
+  s.src='https://unpkg.com/idb@7.1.1/build/iife/index-min.js';
+  document.head.appendChild(s);
+}
+</script>
 
 <style>
   /* ───── styles (unchanged) ───── */
@@ -221,7 +228,7 @@ function addPurchase(){
 function updateUI(){
   const tb=document.querySelector('#purchaseTable tbody');tb.innerHTML='';let shares=0,invested=0;
   stocks[currentStock]?.purchases.forEach((p,i)=>{shares+=p.shares;invested+=p.total;tb.innerHTML+=`<tr><td>${i+1}</td><td>${p.date}</td><td>AED ${p.amount.toFixed(2)}</td><td>${p.price.toFixed(2)}</td><td>${p.shares.toFixed(2)}</td><td>${p.fee.toFixed(2)}</td><td>${p.total.toFixed(2)}</td></tr>`;});
-  document.getElementById('totalShares').textContent=shares.toFixed(2);document.getElementById('totalInvested').textContent=invested.toFixed(2);document.getElementById('avgCost').textContent=shares?(invested/shares).toFixed(3):'0.000';calculateProfit();updateStanding();
+  document.getElementById('totalShares').textContent=shares.toFixed(2);document.getElementById('totalInvested').textContent=invested.toFixed(2);document.getElementId('avgCost').textContent=shares?(invested/shares).toFixed(3):'0.000';calculateProfit();updateStanding();
 }
 function calculateProfit(){const sell=parseFloat(document.getElementById('sellPrice').value),p=stocks[currentStock]?.purchases||[],shares=p.reduce((s,a)=>s+a.shares,0),invested=p.reduce((s,a)=>s+a.total,0),out=document.getElementById('profit');if(isNaN(sell)||!shares){out.textContent='AED 0.00';out.className='profit-colored';return;}const m=markets[stocks[currentStock].market],profit=(sell*shares-(sell*shares*m.rate+m.flat))-invested;out.textContent=`AED ${profit.toFixed(2)}`;out.className='profit-colored '+(profit>0?'green':profit<0?'red':'');}
 
@@ -284,10 +291,10 @@ function applyData(d){
   loadList();
 }
 
-/*  ➜  draw the UI immediately  */
+/*  ➜ draw UI immediately so defaults show even offline */
 applyData({});
 
-/*  then merge local / remote data  */
+/* then hydrate from local and remote */
 async function loadData(){
   const local=await getLocal();
   if(local&&Object.keys(local).length) applyData(local);
