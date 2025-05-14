@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>Stocks Tracker</title>
 
-<!-- idb for durable local storage -->
-<script src="https://cdn.jsdelivr.net/npm/idb@7/dist/idb.min.js"></script>
+<!--  idb (IIFE build – exposes global `idb`)  -->
+<script src="https://cdn.jsdelivr.net/npm/idb@7/build/iife/index-min.js"></script>
 
 <style>
   /* ───── styles (unchanged) ───── */
@@ -116,9 +116,18 @@ let stocks={};
 let currentStock=null,pendingAction=null;
 
 /* ---------- durable local store (IndexedDB) ---------- */
-const dbPromise=idb.openDB('myStocks-v1',1,{upgrade(db){db.createObjectStore('state');}});
-function putLocal(data){dbPromise.then(db=>db.put('state',data,'latest')).catch(()=>{});}
-function getLocal(){return dbPromise.then(db=>db.get('state','latest')).catch(()=>null);}
+let dbPromise;
+try{
+  dbPromise=idb.openDB('myStocks-v1',1,{upgrade(db){db.createObjectStore('state');}});
+}catch{dbPromise=null;}
+function putLocal(data){
+  if(!dbPromise) return;
+  dbPromise.then(db=>db.put('state',data,'latest')).catch(()=>{});
+}
+function getLocal(){
+  if(!dbPromise) return Promise.resolve(null);
+  return dbPromise.then(db=>db.get('state','latest')).catch(()=>null);
+}
 
 /* ---------- GitHub headers ---------- */
 const GH_BASE=`https://api.github.com/gists/${GIST_ID}`;
@@ -150,28 +159,6 @@ function queueRemotePush(){
       dirty=false;
     }
   },1500);
-}
-
-/* ---------- storage (gist) – overrides ---------- */
-async function loadData(){
-  const local=await getLocal();
-  if(local&&Object.keys(local).length) applyData(local);
-
-  fetch(GH_BASE,{headers:GH_HEADERS})
-    .then(r=>r.ok?r.json():Promise.reject())
-    .then(g=>{
-      const raw=g?.files?.[FILE_NAME]?.content||'{}';
-      let remote={};
-      try{remote=JSON.parse(raw);}catch{}
-      applyData(remote);
-      putLocal(remote);
-    })
-    .catch(()=>{if(!local)applyData({});});
-}
-
-function saveData(){
-  putLocal({stocks,markets});
-  queueRemotePush();
 }
 
 /* ---------- utils ---------- */
@@ -290,8 +277,38 @@ window.addEventListener('pagehide',()=>{
 });
 
 /* ---------- init ---------- */
-function applyData(d){markets=Object.keys(d.markets||{}).length?d.markets:JSON.parse(JSON.stringify(defaultMarkets));stocks=d.stocks||{};populateMarkets();loadList();}
+function applyData(d){
+  markets=Object.keys(d.markets||{}).length?d.markets:JSON.parse(JSON.stringify(defaultMarkets));
+  stocks=d.stocks||{};
+  populateMarkets();
+  loadList();
+}
+
+/*  ➜  draw the UI immediately  */
+applyData({});
+
+/*  then merge local / remote data  */
+async function loadData(){
+  const local=await getLocal();
+  if(local&&Object.keys(local).length) applyData(local);
+  fetch(GH_BASE,{headers:GH_HEADERS})
+    .then(r=>r.ok?r.json():Promise.reject())
+    .then(g=>{
+      const raw=g?.files?.[FILE_NAME]?.content||'{}';
+      let remote={};
+      try{remote=JSON.parse(raw);}catch{}
+      applyData(remote);
+      putLocal(remote);
+    })
+    .catch(()=>{});
+}
 loadData();
+
+/* ---------- save wrapper ---------- */
+function saveData(){
+  putLocal({stocks,markets});
+  queueRemotePush();
+}
 </script>
 </body>
 </html>
